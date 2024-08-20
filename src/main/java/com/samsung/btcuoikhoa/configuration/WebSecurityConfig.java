@@ -1,6 +1,6 @@
 package com.samsung.btcuoikhoa.configuration;
 
-import com.samsung.btcuoikhoa.services.UserService;
+import com.samsung.btcuoikhoa.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,57 +8,54 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class WebSecurityConfig {
-    private final String[] PUBLIC_ENPOINTS = {"/", "/home",
-            "/register","*.js", "*.css", "/shopping/*"
-    };
+public class WebSecurityConfig{
+    //Định nghĩa cấu hình cho việc xác thực
+    //Cái nào cần xác thực cái nào không
+    //form xác thực là gì
     @Autowired
-    private UserService userService;
+    public UsersService customerService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private final String[] PUBLIC_ENDPOINT = {"/", "/home",
+            "/register","*.js", "*.css", "/shopping/*"};
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((requests)->requests
-                        .requestMatchers(PUBLIC_ENPOINTS).permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/orders", "/purchase/**").authenticated()
+                        .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+                        .anyRequest().permitAll())
                 .formLogin((form)->form
                         .loginPage("/login")
                         .permitAll()
-                        .defaultSuccessUrl("/welcome"))
+                        .defaultSuccessUrl("/"))
         ;
         return http.build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder()
-    {
-        return new BCryptPasswordEncoder(10);
-    }
-
-
-    //3.
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService);
+        auth.userDetailsService(customerService).passwordEncoder(passwordEncoder);
     }
-    /*
-    @Bean
-    public UserDetailsService userDetailsService(){
-        UserDetails user1 = User.withUsername("user1")
-                .password(passwordEncoder().encode("123456"))
-                .roles("USER")
-                .build();
 
-        UserDetails user2 = User.withUsername("user2")
-                .password(passwordEncoder().encode("123456"))
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(user1, user2);
-    }*/
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        UserDetails user1 = User.withUsername("user1")
+//                .password(passwordEncoder().encode("123456"))
+//                .roles("USER")
+//                .build();
+//        UserDetails user2 = User.withUsername("user2")
+//                .password(passwordEncoder().encode("123456"))
+//                .roles("USER")
+//                .build();
+//        return new InMemoryUserDetailsManager(user1, user2);
+//    }
 }

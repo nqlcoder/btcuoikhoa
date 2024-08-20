@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+<div class="header">
+    <h1>Welcome to Manchester United!</h1>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">Sign out</button>
+    </form>
+    <div><a href="orders?">Xem đơn hàng</a></div>
+</div>
+
+<nav class="navbar">
+    <ul class="nav-list">
+        <li><a th:href="@{/}">All</a></li>
+        <li><a th:href="@{/catalog1}">Catalog 1</a></li>
+        <li><a th:href="@{/catalog2}">Catalog 2</a></li>
+<!--        <li><a th:href="@{/catalog2}">Search</a></li>-->
+    </ul>
+</nav>
+
+<div class="product-list">
+    <div class="product" th:each="product: ${products}" th:object="${product}">
+        <div class="Product-div">
+            <div class="product-img"><img th:src="*{picture}" alt="Product Image"/> </div>
+            <div class="product-name"><b><span th:text="*{name}"></span></b></div>
+            <div class="product-price"><b><span th:text="*{price}"></span></b> đ</div>
+        </div>
+        <form th:action="@{/purchase/{productId}(productId=${product.id})}" method="get">
+            <button type="submit">Buy</button>
+        </form>
+    </div>
+</div>
+<div class="footer">
+    <p>&copy; 2024 Spring Boot By NQL</p>
+</div>
+</body>
+</html>
